@@ -1,7 +1,9 @@
 try:
+    # Python 2 libraries.
     from urllib2 import urlopen
     from HTMLParser import HTMLParser
 except ImportError:
+    # Python 3 libraries.
     from urllib.request import urlopen
     from html.parser import HTMLParser
 
@@ -29,6 +31,7 @@ class SteamXMLParser(HTMLParser):
         # The XML tags for the events.
         self.event_tags = ["event", "expiredEvent"]
         self.data_types = ["Date", "Time", "Message"]
+        self.data_count = len(self.data_types)
 
         # The data yielded by the parse_xml method
         self.curr_event = {"Date": "", "Time": "",
@@ -66,7 +69,9 @@ class SteamXMLParser(HTMLParser):
 
         # Remove \t and \n
         data = data.strip()
-        if (self.isParsing and self.counter < 3 and data!=""):
+        if (self.isParsing and self.counter < self.data_count and data != ""):
+            # Set the values of the current event dictionary.
+            # This is then returned in the parse_event function.
             self.curr_event[self.data_types[self.counter]] = data
             self.counter += 1
 
@@ -111,6 +116,6 @@ class SteamXMLParser(HTMLParser):
         return time.strftime("%Y")
 
 if __name__ == "__main__":
-    test = SteamXMLParser("ID_GOES_HERE")
+    test = SteamXMLParser("ENTER_ID_HERE")
     for event in test.iterate_events():
         print(event)
