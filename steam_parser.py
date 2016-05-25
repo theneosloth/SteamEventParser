@@ -35,7 +35,13 @@ class SteamXMLParser(HTMLParser):
                            "Message": ""}
         self.counter = 0
 
-    def parse(self):
+    def get_event_list(self):
+        """
+            Returns a list of dictionaries all the current event
+        """
+        return list(self.parse())
+
+    def iterate_events(self):
         """
         Wrapper around the _parse_xml method
         Yields a dictionary with the date, time,
@@ -106,5 +112,5 @@ class SteamXMLParser(HTMLParser):
 
 if __name__ == "__main__":
     test = SteamXMLParser("ID_GOES_HERE")
-    for event in test.parse():
+    for event in test.iterate_events():
         print(event)
