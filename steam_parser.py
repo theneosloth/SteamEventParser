@@ -1,8 +1,13 @@
-import urllib2
+try:
+    from urllib2 import urlopen
+    from HTMLParser import HTMLParser
+except ImportError:
+    from urllib.request import urlopen
+    from html.parser import HTMLParser
+
+
 import time
 import xml.etree.ElementTree as ET
-
-from HTMLParser import HTMLParser
 
 
 class SteamXMLParser(HTMLParser):
@@ -52,13 +57,16 @@ class SteamXMLParser(HTMLParser):
         Set the current event value to the values passed from the HTML data.
         Only looks through the first three elements (Date, Time and Message)
         """
-        if (self.isParsing and data.strip() and self.counter < 3):
+
+        # Remove \t and \n
+        data = data.strip()
+        if (self.isParsing and self.counter < 3 and data!=""):
             self.curr_event[self.data_types[self.counter]] = data
             self.counter += 1
 
     def _load_data(self):
         """Download the XML file"""
-        return urllib2.urlopen(self._format_url(self.url)).read()
+        return urlopen(self._format_url(self.url)).read()
 
     def _format_url(self, url):
         """ Inserts the appropriate month, year and id into the steam url"""
@@ -73,6 +81,7 @@ class SteamXMLParser(HTMLParser):
         events from a steam group
         """
         doc = ET.fromstring(xml)
+        # Check if the response code is 'OK'
         if (doc.find("results").text == "OK"):
             for event in doc.iter():
                 if event.tag in self.event_tags:
@@ -98,4 +107,4 @@ class SteamXMLParser(HTMLParser):
 if __name__ == "__main__":
     test = SteamXMLParser("ID_GOES_HERE")
     for event in test.parse():
-        print event
+        print(event)
