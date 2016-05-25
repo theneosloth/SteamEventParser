@@ -45,6 +45,7 @@ class SteamXMLParser(HTMLParser):
 
     def handle_data(self, data):
         """
+        Overloaded method from the HTMLParser class.
         Set the current event value to the values passed from the HTML data.
         Only looks through the first three elements (Date, Time and Message)
         """
@@ -71,12 +72,14 @@ class SteamXMLParser(HTMLParser):
         doc = ET.fromstring(xml)
         if (doc.find("results").text == "OK"):
 
+            """ TODO: add non expired events """
             for event in doc.iter("expiredEvent"):
                 yield self.parse_event(event.text)
 
         else:
             raise Exception("Response not OK")
 
+    """ Updates self.curr_event and returns it """
     def parse_event(self, text):
         self.feed(text)
         self.counter = 0
