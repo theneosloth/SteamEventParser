@@ -96,6 +96,6 @@ class SteamXMLParser(HTMLParser):
         return time.strftime("%Y")
 
 if __name__ == "__main__":
-    test = SteamXMLParser("103582791440305227")
+    test = SteamXMLParser("ID_GOES_HERE")
     for event in test.parse():
         print event
