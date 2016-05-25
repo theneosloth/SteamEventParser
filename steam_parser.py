@@ -20,6 +20,9 @@ class SteamXMLParser(HTMLParser):
         self.id = str(id)
         self.isParsing = False
         self.important_tags = ["span", "a"]
+
+        # The XML tags for the events.
+        self.event_tags = ["event", "expiredEvent"]
         self.data_types = ["Date", "Time", "Message"]
 
         # The data yielded by the parse_xml method
@@ -71,10 +74,9 @@ class SteamXMLParser(HTMLParser):
         """
         doc = ET.fromstring(xml)
         if (doc.find("results").text == "OK"):
-
-            """ TODO: add non expired events """
-            for event in doc.iter("expiredEvent"):
-                yield self.parse_event(event.text)
+            for event in doc.iter():
+                if event.tag in self.event_tags:
+                    yield self.parse_event(event.text)
 
         else:
             raise Exception("Response not OK")
@@ -94,6 +96,6 @@ class SteamXMLParser(HTMLParser):
         return time.strftime("%Y")
 
 if __name__ == "__main__":
-    test = SteamXMLParser("REPLACE_WITH_ID")
+    test = SteamXMLParser("103582791440305227")
     for event in test.parse():
         print event
