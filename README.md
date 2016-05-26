@@ -11,3 +11,8 @@ A python class that yields the information about the events in a given steam gro
 {'Date': 'Sunday 22', 'Message': 'Join the chat room!', 'Time': '06:58pm'}
 {'Date': 'Saturday 21', 'Message': 'Welcome to the group!', 'Time': '06:38pm'}
 ```
+
+#Sample Command Line Usage
+```
+steam_parser.py 1003526346346
+```

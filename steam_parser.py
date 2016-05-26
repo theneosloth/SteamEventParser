@@ -42,7 +42,7 @@ class SteamXMLParser(HTMLParser):
         """
             Returns a list of dictionaries all the current event
         """
-        return list(self.parse())
+        return list(self.iterate_events())
 
     def iterate_events(self):
         """
@@ -54,7 +54,11 @@ class SteamXMLParser(HTMLParser):
             yield x
 
     def handle_starttag(self, tag, attrs):
-        """ Overloaded method from the HTMLParser class"""
+        """
+        Overloaded method from the HTMLParser class.
+        Passes the data to handle_data.
+        The only tags looked at are 'a' and 'span'
+        """
         if (tag in self.important_tags):
             self.isParsing = True
         else:
@@ -101,8 +105,15 @@ class SteamXMLParser(HTMLParser):
         else:
             raise Exception("Response not OK")
 
-    """ Updates self.curr_event and returns it """
     def parse_event(self, text):
+        """
+        Passes the HTML string from the XML component
+        into the HTMLParser.
+
+        returns a curr_event dictionary
+        with filled in Date, Time and Message.
+
+        """
         self.feed(text)
         self.counter = 0
         return self.curr_event
@@ -116,6 +127,13 @@ class SteamXMLParser(HTMLParser):
         return time.strftime("%Y")
 
 if __name__ == "__main__":
-    test = SteamXMLParser("ENTER_ID_HERE")
-    for event in test.iterate_events():
+    import argparse
+    arg_parser = argparse.ArgumentParser(description="\
+            Return a list of events for a given group.")
+    arg_parser.add_argument("id", type=str)
+
+    args = arg_parser.parse_args()
+
+    event_parser = SteamXMLParser(args.id)
+    for event in event_parser.iterate_events():
         print(event)
