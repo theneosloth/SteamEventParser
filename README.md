@@ -8,8 +8,8 @@ A python class that yields the information about the events in a given steam gro
 
 #Sample Code Usage
 ```py
-id = "ID_STRING
-event_parser = SteamEventParser(args.id)
+id = "ID_STRING"
+event_parser = SteamEventParser(id)
 for event in event_parser.iterate_events():
     # See: Sample Output
     print(event)
