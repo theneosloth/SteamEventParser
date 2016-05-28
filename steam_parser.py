@@ -11,10 +11,15 @@ except ImportError:
 import time
 import xml.etree.ElementTree as ET
 
+"""
+This module parses the event page for a steam group.
+It returns the events as either a generator or a list.
+"""
 
-class SteamXMLParser(HTMLParser):
+
+class SteamEventParser(HTMLParser):
     def __init__(self, id):
-        # Old style class constructor
+        # Old style class constructor.
         HTMLParser.__init__(self)
 
         self.url = "http://steamcommunity.com/gid/$id/" \
@@ -31,12 +36,21 @@ class SteamXMLParser(HTMLParser):
         # The XML tags for the events.
         self.event_tags = ["event", "expiredEvent"]
         self.data_types = ["Date", "Time", "Message"]
+
+        # The amount of tags we are going to iterate over in each event.
+        # For now we only use three.
         self.data_count = len(self.data_types)
 
         # The data yielded by the parse_xml method
         self.curr_event = {"Date": "", "Time": "",
                            "Message": ""}
+
+        # Compared to data_count when iterating over links.
         self.counter = 0
+
+    def get_last_event(self):
+        '''Returns the last event.'''
+        return(next(self.iterate_events()))
 
     def get_event_list(self):
         """
@@ -134,6 +148,6 @@ if __name__ == "__main__":
 
     args = arg_parser.parse_args()
 
-    event_parser = SteamXMLParser(args.id)
+    event_parser = SteamEventParser(args.id)
     for event in event_parser.iterate_events():
         print(event)
