@@ -50,7 +50,10 @@ class SteamEventParser(HTMLParser):
 
     def get_last_event(self):
         '''Returns the last event.'''
-        return(next(self.iterate_events()))
+        try:
+            return(next(self.iterate_events()))
+        except StopIteration:
+            return {}
 
     def get_event_list(self):
         """
@@ -66,6 +69,35 @@ class SteamEventParser(HTMLParser):
         """
         for x in self._parse_xml(self._load_data()):
             yield x
+
+    def parse_event(self, text):
+        """
+        Passes the HTML string from the XML component
+        into the HTMLParser.
+
+        returns a curr_event dictionary
+        with filled in Date, Time and Message.
+
+        """
+        self.feed(text)
+        self.counter = 0
+        return self.curr_event
+
+    def _parse_xml(self, xml):
+        """
+        A generator that
+        returns all the individual
+        events from a steam group
+        """
+        doc = ET.fromstring(xml)
+        # Check if the response code is 'OK'
+        if (doc.find("results").text == "OK"):
+            for event in doc.iter():
+                if event.tag in self.event_tags:
+                    yield self.parse_event(event.text)
+
+        else:
+            raise Exception("Response not OK")
 
     def handle_starttag(self, tag, attrs):
         """
@@ -102,35 +134,6 @@ class SteamEventParser(HTMLParser):
         return url.replace("$month", self._get_month()).replace(
                             "$year", self._get_year()).replace(
                                     "$id", self.id)
-
-    def _parse_xml(self, xml):
-        """
-        A generator that
-        returns all the individual
-        events from a steam group
-        """
-        doc = ET.fromstring(xml)
-        # Check if the response code is 'OK'
-        if (doc.find("results").text == "OK"):
-            for event in doc.iter():
-                if event.tag in self.event_tags:
-                    yield self.parse_event(event.text)
-
-        else:
-            raise Exception("Response not OK")
-
-    def parse_event(self, text):
-        """
-        Passes the HTML string from the XML component
-        into the HTMLParser.
-
-        returns a curr_event dictionary
-        with filled in Date, Time and Message.
-
-        """
-        self.feed(text)
-        self.counter = 0
-        return self.curr_event
 
     """Returns the current month as a number"""
     def _get_month(self):
